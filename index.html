@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Car Push Tracker</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --panel-2: #f4f6fa;
+    --border: #e2e6ee;
+    --text: #1a2233;
+    --text-dim: #6b7789;
+    --accent: #2563eb;
+    --accent-2: #f59e0b;
+    --danger: #dc2626;
+    --good: #16a34a;
+    --radius: 18px;
+    --shadow: 0 2px 14px rgba(20,32,51,0.07);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh; overflow-x: hidden;
+  }
+  .app { width: 100%; max-width: 1600px; margin: 0 auto; padding: 22px 28px 30px; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* Header: big logos either side of the title, landscape row */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px; margin-bottom: 22px;
+  }
+  .logo-box { flex: 0 0 auto; height: 110px; display: flex; align-items: center; }
+  .logo-box img { height: 100%; width: auto; max-width: 280px; object-fit: contain; }
+  .title-block { text-align: center; flex: 1 1 auto; }
+  h1.title {
+    margin: 0; font-size: clamp(30px, 4.2vw, 52px);
+    font-weight: 800; letter-spacing: -0.02em;
+  }
+  .subtitle { margin: 4px 0 0; color: var(--text-dim); font-size: clamp(13px, 1.3vw, 17px); }
+
+  .status-row { display: flex; justify-content: center; margin-bottom: 8px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--text-dim);
+  }
+  .pill.connected { color: var(--good); }
+  .pill.error { color: var(--danger); }
+  .pill.info { color: var(--accent); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+  /* Landscape body: stats column + big map */
+  .body-grid {
+    display: grid; grid-template-columns: 360px 1fr; gap: 22px;
+    flex: 1 1 auto; min-height: 0;
+  }
+  @media (max-aspect-ratio: 4/5) {
+    .body-grid { grid-template-columns: 1fr; }
+  }
+
+  .stats-col { display: flex; flex-direction: column; gap: 22px; }
+  .hero-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 26px 22px; box-shadow: var(--shadow);
+    text-align: center; flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center;
+  }
+  .hero-card h2 {
+    margin: 0 0 10px; font-size: 14px; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-dim); font-weight: 700;
+  }
+  .hero-value {
+    font-size: clamp(38px, 5.5vw, 64px); font-weight: 800;
+    font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    line-height: 1.1;
+  }
+  .hero-value .unit { font-size: 20px; color: var(--text-dim); font-weight: 600; }
+  #timerCard.hour-hit { border-color: var(--accent-2); box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
+
+  .map-panel {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; min-height: 320px;
+  }
+  .map-panel h2 { margin: 0 0 10px; font-size: 16px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; }
+  .map-error { padding: 10px 12px; background: #fef2f2; border: 1px solid var(--danger); border-radius: 8px; color: var(--danger); font-size: 12px; margin-bottom: 8px; display: none; }
+  .map-error.visible { display: block; }
+  #realMap { width: 100%; flex: 1 1 auto; min-height: 260px; border-radius: 12px; border: 1px solid var(--border); background: #dfe7f0; }
+
+  /* Leaflet essentials inlined */
+  .leaflet-container { overflow: hidden; position: relative; font: 12px/1.5 -apple-system, BlinkMacSystemFont, Arial, sans-serif; -webkit-tap-highlight-color: transparent; height: 100%; }
+  .leaflet-pane, .leaflet-tile, .leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-tile-container, .leaflet-pane > svg, .leaflet-pane > canvas, .leaflet-zoom-box, .leaflet-image-layer, .leaflet-layer { position: absolute; left: 0; top: 0; }
+  .leaflet-container { -webkit-user-select: none; user-select: none; }
+  .leaflet-tile { filter: inherit; visibility: hidden; }
+  .leaflet-tile-loaded { visibility: inherit; }
+  .leaflet-marker-icon, .leaflet-marker-shadow { display: block; }
+  .leaflet-container img { max-width: none !important; }
+  .leaflet-pane { z-index: 400; } .leaflet-tile-pane { z-index: 200; } .leaflet-overlay-pane { z-index: 400; }
+  .leaflet-shadow-pane { z-index: 500; } .leaflet-marker-pane { z-index: 600; } .leaflet-tooltip-pane { z-index: 650; } .leaflet-popup-pane { z-index: 700; }
+  .leaflet-map-pane canvas { z-index: 100; } .leaflet-map-pane svg { z-index: 200; }
+  .leaflet-control { position: relative; z-index: 800; pointer-events: auto; }
+  .leaflet-top, .leaflet-bottom { position: absolute; z-index: 1000; pointer-events: none; }
+  .leaflet-top { top: 0; } .leaflet-bottom { bottom: 0; } .leaflet-right { right: 0; } .leaflet-left { left: 0; }
+  .leaflet-control { float: left; clear: both; pointer-events: auto; }
+  .leaflet-right .leaflet-control { float: right; }
+  .leaflet-top .leaflet-control { margin-top: 10px; } .leaflet-bottom .leaflet-control { margin-bottom: 10px; }
+  .leaflet-left .leaflet-control { margin-left: 10px; } .leaflet-right .leaflet-control { margin-right: 10px; }
+  .leaflet-bar { box-shadow: 0 1px 5px rgba(0,0,0,0.4); border-radius: 4px; }
+  .leaflet-bar a { background-color: #fff; border-bottom: 1px solid #ccc; width: 30px; height: 30px; line-height: 30px; display: block; text-align: center; text-decoration: none; color: #000; font: bold 20px "Lucida Console", Monaco, monospace; }
+  .leaflet-bar a:hover { background-color: #f4f4f4; }
+  .leaflet-bar a:first-child { border-top-left-radius: 4px; border-top-right-radius: 4px; }
+  .leaflet-bar a:last-child { border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; border-bottom: none; }
+  .leaflet-bar a.leaflet-disabled { cursor: default; background-color: #f4f4f4; color: #bbb; }
+  .leaflet-control-attribution { background: rgba(255,255,255,0.9); padding: 0 6px; font-size: 11px; color: #333; }
+  .leaflet-control-attribution a { color: #0078a8; text-decoration: none; }
+  .car-marker-icon { width: 18px; height: 18px; background: var(--accent-2); border: 3px solid #fff; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.35); }
+
+  footer { text-align: center; color: var(--text-dim); font-size: 11px; margin-top: 14px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="logo-box"><img src="logo1.png" alt="Logo 1"></div> 
+    <div class="title-block">
+      <h1 class="title">Car Push Tracker</h1>
+      <p class="subtitle">Live distance &amp; timer for this vehicle</p>
+    </div>
+    <div class="logo-box"><img src="logo2.png" alt="Logo 2"></div>
+
+  <div class="status-row"><span class="pill" id="connStatus"><span class="dot"></span> Connecting…</span></div>
+
+  <div class="body-grid">
+    <div class="stats-col">
+      <div class="hero-card" id="timerCard">
+        <h2>Session Timer</h2>
+        <div class="hero-value" id="timerValue">00:00:00</div>
+      </div>
+      <div class="hero-card">
+        <h2>Distance Pushed</h2>
+        <div class="hero-value"><span id="distanceValue">0.00</span> <span class="unit">m</span></div>
+      </div>
+    </div>
+    <div class="map-panel">
+      <h2>Live Location</h2>
+      <div class="map-error" id="mapError"></div>
+      <div id="realMap"></div>
+    </div>
+  </div>
+
+  <footer>Car Push Tracker — public display</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.10.1/mqtt.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+(function () {
+  "use strict";
+  const el = (id) => document.getElementById(id);
+
+  // ==========================================================================
+  // PUBLIC, READ-ONLY connection. This page never publishes anything -- it
+  // only subscribes to the telemetry topic. EDIT these three values, and use
+  // a SEPARATE, restricted HiveMQ Cloud credential set here (see the setup
+  // notes) that only has Subscribe permission on this one topic and NO
+  // Publish permission at all. That is what actually stops a visitor from
+  // being able to send a calibrate_start/calibrate_finish command from
+  // this page's browser console -- removing the buttons alone would not,
+  // since anyone can view this page's source and see these values.
+  // ==========================================================================
+  const BROKER_URL     = "wss://35857808dd8b4537aabc6ee9c825c1c9.s1.eu.hivemq.cloud:8884/mqtt";
+  const BROKER_USER     = "public-viewer";
+  const BROKER_PASS     = "ovit2004";
+  const TOPIC_TELEMETRY = "cartracker/mycar/telemetry";
+  // ==========================================================================
+
+  const connStatus    = el("connStatus");
+  const distanceValue = el("distanceValue");
+  const timerValue    = el("timerValue");
+  const timerCard     = el("timerCard");
+
+  function setStatus(kind, text) { connStatus.className = "pill " + kind; connStatus.innerHTML = '<span class="dot"></span> ' + text; }
+
+  // ---- Timer: runs locally in the browser, tied to motion (see applyTelemetry) ----
+  let timerRunning = false, timerStartedAt = 0, timerElapsedMs = 0, lastMotionAt = 0;
+  const MOTION_IDLE_TIMEOUT_MS = 3000;
+  function formatHMS(ms) {
+    const t = Math.floor(ms / 1000);
+    const h = String(Math.floor(t / 3600)).padStart(2, "0");
+    const m = String(Math.floor((t % 3600) / 60)).padStart(2, "0");
+    const s = String(t % 60).padStart(2, "0");
+    return h + ":" + m + ":" + s;
+  }
+  function tickTimer() {
+    let e = timerElapsedMs;
+    if (timerRunning) e += (Date.now() - timerStartedAt);
+    timerValue.textContent = formatHMS(e);
+    timerCard.classList.toggle("hour-hit", e >= 3600000);
+  }
+  setInterval(() => {
+    const idle = (Date.now() - lastMotionAt) > MOTION_IDLE_TIMEOUT_MS;
+    if (!idle && lastMotionAt && !timerRunning) { timerRunning = true; timerStartedAt = Date.now(); }
+    else if (idle && timerRunning) { timerElapsedMs += (Date.now() - timerStartedAt); timerRunning = false; }
+    tickTimer();
+  }, 250);
+
+  // ---- Real-world Leaflet map (read-only trail) ----
+  let leafletMap = null, leafletMarker = null, leafletTrail = null;
+  let tileErrorCount = 0, tilesLoaded = false, mapErrShown = false;
+  function initLeaflet() {
+    if (typeof L === "undefined") { showMapFallback("Map library failed to load."); return; }
+    try {
+      leafletMap = L.map("realMap", { zoomControl: true }).setView([12.9716, 77.5946], 13);
+      const tileLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
+      });
+      tileLayer.on("tileload", () => { tilesLoaded = true; });
+      tileLayer.on("tileerror", () => {
+        tileErrorCount++;
+        if (tileErrorCount >= 4 && !tilesLoaded && !mapErrShown) {
+          mapErrShown = true;
+          el("mapError").textContent = "Map tiles didn't load — check the internet connection on this display.";
+          el("mapError").classList.add("visible");
+        }
+      });
+      tileLayer.addTo(leafletMap);
+      leafletTrail = L.polyline([], { color: "#2563eb", weight: 4, opacity: 0.9 }).addTo(leafletMap);
+      setTimeout(() => leafletMap.invalidateSize(), 150);
+    } catch (e) {
+      el("mapError").textContent = "Map init error: " + e.message;
+      el("mapError").classList.add("visible");
+    }
+  }
+  function updatePosition(lat, lng) {
+    if (!leafletMap) return;
+    const latlng = [lat, lng];
+    if (!leafletMarker) {
+      leafletMarker = L.marker(latlng, { icon: L.divIcon({ className: "car-marker-icon", iconSize: [18, 18], iconAnchor: [9, 9] }) }).addTo(leafletMap);
+      leafletMap.setView(latlng, 17);
+    } else { leafletMarker.setLatLng(latlng); }
+    leafletTrail.addLatLng(latlng);
+  }
+  initLeaflet();
+  window.addEventListener("resize", () => { if (leafletMap) leafletMap.invalidateSize(); });
+
+  // ---- Apply telemetry (display only -- this page never sends anything back) ----
+  function applyTelemetry(t) {
+    if (typeof t.distance_m === "number") distanceValue.textContent = t.distance_m.toFixed(2);
+    if (t.direction && t.direction !== "idle") lastMotionAt = Date.now();
+    if (typeof t.lat === "number" && typeof t.lng === "number" && t.fix) updatePosition(t.lat, t.lng);
+  }
+
+  // ---- MQTT: subscribe only, no publish capability exists in this file ----
+  function connect() {
+    if (typeof mqtt === "undefined") { setStatus("error", "MQTT library failed to load"); return; }
+    setStatus("info", "Connecting…");
+    const client = mqtt.connect(BROKER_URL, {
+      username: BROKER_USER, password: BROKER_PASS,
+      clean: true, reconnectPeriod: 4000, connectTimeout: 30000, keepalive: 30,
+      protocolVersion: 5, rejectUnauthorized: true
+    });
+    client.on("connect", () => {
+      setStatus("connected", "Live");
+      client.subscribe(TOPIC_TELEMETRY, { qos: 0 });
+    });
+    client.on("reconnect", () => setStatus("info", "Reconnecting…"));
+    client.on("close",     () => setStatus("error", "Disconnected"));
+    client.on("offline",   () => setStatus("error", "Offline"));
+    client.on("error", (e) => setStatus("error", "Connection error"));
+    client.on("message", (topic, payload) => { try { applyTelemetry(JSON.parse(payload.toString())); } catch (e) {} });
+  }
+  connect();
+})();
+</script>
+</body>
+</html>
