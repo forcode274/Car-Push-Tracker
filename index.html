@@ -26,26 +26,25 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     min-height: 100vh; overflow-x: hidden;
   }
-  .app { width: 100%; max-width: 1600px; margin: 0 auto; padding: 22px 28px 30px; min-height: 100vh; display: flex; flex-direction: column; }
+  .app { width: 100%; max-width: 1400px; margin: 0 auto; padding: 26px 28px 34px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
 
-  /* Header: big logos either side of the title, landscape row */
   .header {
     display: flex; align-items: center; justify-content: space-between;
-    gap: 24px; margin-bottom: 22px;
+    gap: 24px; margin-bottom: 30px;
   }
-  .logo-box { flex: 0 0 auto; height: 110px; display: flex; align-items: center; }
-  .logo-box img { height: 100%; width: auto; max-width: 280px; object-fit: contain; }
+  .logo-box { flex: 0 0 auto; height: 120px; display: flex; align-items: center; }
+  .logo-box img { height: 100%; width: auto; max-width: 300px; object-fit: contain; }
   .title-block { text-align: center; flex: 1 1 auto; }
   h1.title {
-    margin: 0; font-size: clamp(30px, 4.2vw, 52px);
+    margin: 0; font-size: clamp(32px, 4.6vw, 56px);
     font-weight: 800; letter-spacing: -0.02em;
   }
-  .subtitle { margin: 4px 0 0; color: var(--text-dim); font-size: clamp(13px, 1.3vw, 17px); }
+  .subtitle { margin: 6px 0 0; color: var(--text-dim); font-size: clamp(14px, 1.4vw, 18px); }
 
-  .status-row { display: flex; justify-content: center; margin-bottom: 8px; }
+  .status-row { display: flex; justify-content: center; margin-bottom: 26px; }
   .pill {
     display: inline-flex; align-items: center; gap: 6px;
-    padding: 5px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    padding: 6px 16px; border-radius: 999px; font-size: 13px; font-weight: 600;
     background: var(--panel-2); border: 1px solid var(--border); color: var(--text-dim);
   }
   .pill.connected { color: var(--good); }
@@ -53,81 +52,38 @@
   .pill.info { color: var(--accent); }
   .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 
-  /* Landscape body: stats column + big map */
-  .body-grid {
-    display: grid; grid-template-columns: 360px 1fr; gap: 22px;
-    flex: 1 1 auto; min-height: 0;
+  .hero-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 26px;
   }
-  @media (max-aspect-ratio: 4/5) {
-    .body-grid { grid-template-columns: 1fr; }
-  }
+  @media (max-aspect-ratio: 4/5) { .hero-grid { grid-template-columns: 1fr; } }
 
-  .stats-col { display: flex; flex-direction: column; gap: 22px; }
   .hero-card {
     background: var(--panel); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 26px 22px; box-shadow: var(--shadow);
-    text-align: center; flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center;
+    border-radius: var(--radius); padding: 40px 30px; box-shadow: var(--shadow);
+    text-align: center;
   }
   .hero-card h2 {
-    margin: 0 0 10px; font-size: 14px; text-transform: uppercase;
+    margin: 0 0 16px; font-size: 16px; text-transform: uppercase;
     letter-spacing: 0.08em; color: var(--text-dim); font-weight: 700;
   }
   .hero-value {
-    font-size: clamp(38px, 5.5vw, 64px); font-weight: 800;
+    font-size: clamp(52px, 8vw, 96px); font-weight: 800;
     font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
     line-height: 1.1;
   }
-  .hero-value .unit { font-size: 20px; color: var(--text-dim); font-weight: 600; }
+  .hero-value .unit { font-size: 26px; color: var(--text-dim); font-weight: 600; }
   #timerCard.hour-hit { border-color: var(--accent-2); box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
 
-  .map-panel {
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow);
-    display: flex; flex-direction: column; min-height: 320px;
-  }
-  .map-panel h2 { margin: 0 0 10px; font-size: 16px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; }
-  .map-error { padding: 10px 12px; background: #fef2f2; border: 1px solid var(--danger); border-radius: 8px; color: var(--danger); font-size: 12px; margin-bottom: 8px; display: none; }
-  .map-error.visible { display: block; }
-  #realMap { width: 100%; flex: 1 1 auto; min-height: 260px; border-radius: 12px; border: 1px solid var(--border); background: #dfe7f0; }
-
-  /* Leaflet essentials inlined */
-  .leaflet-container { overflow: hidden; position: relative; font: 12px/1.5 -apple-system, BlinkMacSystemFont, Arial, sans-serif; -webkit-tap-highlight-color: transparent; height: 100%; }
-  .leaflet-pane, .leaflet-tile, .leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-tile-container, .leaflet-pane > svg, .leaflet-pane > canvas, .leaflet-zoom-box, .leaflet-image-layer, .leaflet-layer { position: absolute; left: 0; top: 0; }
-  .leaflet-container { -webkit-user-select: none; user-select: none; }
-  .leaflet-tile { filter: inherit; visibility: hidden; }
-  .leaflet-tile-loaded { visibility: inherit; }
-  .leaflet-marker-icon, .leaflet-marker-shadow { display: block; }
-  .leaflet-container img { max-width: none !important; }
-  .leaflet-pane { z-index: 400; } .leaflet-tile-pane { z-index: 200; } .leaflet-overlay-pane { z-index: 400; }
-  .leaflet-shadow-pane { z-index: 500; } .leaflet-marker-pane { z-index: 600; } .leaflet-tooltip-pane { z-index: 650; } .leaflet-popup-pane { z-index: 700; }
-  .leaflet-map-pane canvas { z-index: 100; } .leaflet-map-pane svg { z-index: 200; }
-  .leaflet-control { position: relative; z-index: 800; pointer-events: auto; }
-  .leaflet-top, .leaflet-bottom { position: absolute; z-index: 1000; pointer-events: none; }
-  .leaflet-top { top: 0; } .leaflet-bottom { bottom: 0; } .leaflet-right { right: 0; } .leaflet-left { left: 0; }
-  .leaflet-control { float: left; clear: both; pointer-events: auto; }
-  .leaflet-right .leaflet-control { float: right; }
-  .leaflet-top .leaflet-control { margin-top: 10px; } .leaflet-bottom .leaflet-control { margin-bottom: 10px; }
-  .leaflet-left .leaflet-control { margin-left: 10px; } .leaflet-right .leaflet-control { margin-right: 10px; }
-  .leaflet-bar { box-shadow: 0 1px 5px rgba(0,0,0,0.4); border-radius: 4px; }
-  .leaflet-bar a { background-color: #fff; border-bottom: 1px solid #ccc; width: 30px; height: 30px; line-height: 30px; display: block; text-align: center; text-decoration: none; color: #000; font: bold 20px "Lucida Console", Monaco, monospace; }
-  .leaflet-bar a:hover { background-color: #f4f4f4; }
-  .leaflet-bar a:first-child { border-top-left-radius: 4px; border-top-right-radius: 4px; }
-  .leaflet-bar a:last-child { border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; border-bottom: none; }
-  .leaflet-bar a.leaflet-disabled { cursor: default; background-color: #f4f4f4; color: #bbb; }
-  .leaflet-control-attribution { background: rgba(255,255,255,0.9); padding: 0 6px; font-size: 11px; color: #333; }
-  .leaflet-control-attribution a { color: #0078a8; text-decoration: none; }
-  .car-marker-icon { width: 18px; height: 18px; background: var(--accent-2); border: 3px solid #fff; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.35); }
-
-  footer { text-align: center; color: var(--text-dim); font-size: 11px; margin-top: 14px; }
+  footer { text-align: center; color: var(--text-dim); font-size: 12px; margin-top: 20px; }
 </style>
 </head>
 <body>
 <div class="app">
 
   <div class="header">
-    <div class="logo-box"><img src="logo1.png" alt="Logo 1"></div> 
+    <div class="logo-box"><img src="logo1.png" alt="Logo 1"></div>
     <div class="title-block">
-      <h1 class="title">Car Push Tracker</h1>
+      <h1 class="title">🚗 Car Push Tracker</h1>
       <p class="subtitle">Live distance &amp; timer for this vehicle</p>
     </div>
     <div class="logo-box"><img src="logo2.png" alt="Logo 2"></div>
@@ -135,21 +91,14 @@
 
   <div class="status-row"><span class="pill" id="connStatus"><span class="dot"></span> Connecting…</span></div>
 
-  <div class="body-grid">
-    <div class="stats-col">
-      <div class="hero-card" id="timerCard">
-        <h2>Session Timer</h2>
-        <div class="hero-value" id="timerValue">00:00:00</div>
-      </div>
-      <div class="hero-card">
-        <h2>Distance Pushed</h2>
-        <div class="hero-value"><span id="distanceValue">0.00</span> <span class="unit">m</span></div>
-      </div>
+  <div class="hero-grid">
+    <div class="hero-card" id="timerCard">
+      <h2>Session Timer</h2>
+      <div class="hero-value" id="timerValue">01:00:00</div>
     </div>
-    <div class="map-panel">
-      <h2>Live Location</h2>
-      <div class="map-error" id="mapError"></div>
-      <div id="realMap"></div>
+    <div class="hero-card">
+      <h2>Distance Pushed</h2>
+      <div class="hero-value"><span id="distanceValue">0.00</span> <span class="unit">m</span></div>
     </div>
   </div>
 
@@ -157,7 +106,6 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.10.1/mqtt.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
 (function () {
   "use strict";
@@ -165,15 +113,12 @@
 
   // ==========================================================================
   // PUBLIC, READ-ONLY connection. This page never publishes anything -- it
-  // only subscribes to the telemetry topic. EDIT these three values, and use
-  // a SEPARATE, restricted HiveMQ Cloud credential set here (see the setup
-  // notes) that only has Subscribe permission on this one topic and NO
-  // Publish permission at all. That is what actually stops a visitor from
-  // being able to send a calibrate_start/calibrate_finish command from
-  // this page's browser console -- removing the buttons alone would not,
-  // since anyone can view this page's source and see these values.
+  // only subscribes to the telemetry topic. Use a SEPARATE, restricted
+  // HiveMQ Cloud credential here (Subscribe-only on this one topic, no
+  // Publish permission at all) -- not the full-access credential the ESP32
+  // and your private dashboard use.
   // ==========================================================================
-  const BROKER_URL     = "wss://35857808dd8b4537aabc6ee9c825c1c9.s1.eu.hivemq.cloud:8884/mqtt";
+  const BROKER_URL     = "wss://YOUR-CLUSTER-ID.s1.eu.hivemq.cloud:8884/mqtt";
   const BROKER_USER     = "public-viewer";
   const BROKER_PASS     = "REPLACE-WITH-THE-RESTRICTED-PASSWORD";
   const TOPIC_TELEMETRY = "cartracker/mycar/telemetry";
@@ -186,9 +131,10 @@
 
   function setStatus(kind, text) { connStatus.className = "pill " + kind; connStatus.innerHTML = '<span class="dot"></span> ' + text; }
 
-  // ---- Timer: runs locally in the browser, tied to motion (see applyTelemetry) ----
-  let timerRunning = false, timerStartedAt = 0, timerElapsedMs = 0, lastMotionAt = 0;
+  // ---- Timer: 1 hour countdown, runs while motion is reported ----
+  const TIMER_DURATION_MS = 3600000;
   const MOTION_IDLE_TIMEOUT_MS = 3000;
+  let timerRunning = false, timerStartedAt = 0, timerElapsedMs = 0, lastMotionAt = 0;
   function formatHMS(ms) {
     const t = Math.floor(ms / 1000);
     const h = String(Math.floor(t / 3600)).padStart(2, "0");
@@ -199,60 +145,23 @@
   function tickTimer() {
     let e = timerElapsedMs;
     if (timerRunning) e += (Date.now() - timerStartedAt);
-    timerValue.textContent = formatHMS(e);
-    timerCard.classList.toggle("hour-hit", e >= 3600000);
+    const remaining = Math.max(0, TIMER_DURATION_MS - e);
+    timerValue.textContent = formatHMS(remaining);
+    timerCard.classList.toggle("hour-hit", remaining <= 0);
+    if (remaining <= 0 && timerRunning) { timerElapsedMs = TIMER_DURATION_MS; timerRunning = false; }
   }
   setInterval(() => {
     const idle = (Date.now() - lastMotionAt) > MOTION_IDLE_TIMEOUT_MS;
-    if (!idle && lastMotionAt && !timerRunning) { timerRunning = true; timerStartedAt = Date.now(); }
+    const timeUp = timerElapsedMs >= TIMER_DURATION_MS;
+    if (!idle && lastMotionAt && !timerRunning && !timeUp) { timerRunning = true; timerStartedAt = Date.now(); }
     else if (idle && timerRunning) { timerElapsedMs += (Date.now() - timerStartedAt); timerRunning = false; }
     tickTimer();
   }, 250);
-
-  // ---- Real-world Leaflet map (read-only trail) ----
-  let leafletMap = null, leafletMarker = null, leafletTrail = null;
-  let tileErrorCount = 0, tilesLoaded = false, mapErrShown = false;
-  function initLeaflet() {
-    if (typeof L === "undefined") { showMapFallback("Map library failed to load."); return; }
-    try {
-      leafletMap = L.map("realMap", { zoomControl: true }).setView([12.9716, 77.5946], 13);
-      const tileLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
-      });
-      tileLayer.on("tileload", () => { tilesLoaded = true; });
-      tileLayer.on("tileerror", () => {
-        tileErrorCount++;
-        if (tileErrorCount >= 4 && !tilesLoaded && !mapErrShown) {
-          mapErrShown = true;
-          el("mapError").textContent = "Map tiles didn't load — check the internet connection on this display.";
-          el("mapError").classList.add("visible");
-        }
-      });
-      tileLayer.addTo(leafletMap);
-      leafletTrail = L.polyline([], { color: "#2563eb", weight: 4, opacity: 0.9 }).addTo(leafletMap);
-      setTimeout(() => leafletMap.invalidateSize(), 150);
-    } catch (e) {
-      el("mapError").textContent = "Map init error: " + e.message;
-      el("mapError").classList.add("visible");
-    }
-  }
-  function updatePosition(lat, lng) {
-    if (!leafletMap) return;
-    const latlng = [lat, lng];
-    if (!leafletMarker) {
-      leafletMarker = L.marker(latlng, { icon: L.divIcon({ className: "car-marker-icon", iconSize: [18, 18], iconAnchor: [9, 9] }) }).addTo(leafletMap);
-      leafletMap.setView(latlng, 17);
-    } else { leafletMarker.setLatLng(latlng); }
-    leafletTrail.addLatLng(latlng);
-  }
-  initLeaflet();
-  window.addEventListener("resize", () => { if (leafletMap) leafletMap.invalidateSize(); });
 
   // ---- Apply telemetry (display only -- this page never sends anything back) ----
   function applyTelemetry(t) {
     if (typeof t.distance_m === "number") distanceValue.textContent = t.distance_m.toFixed(2);
     if (t.direction && t.direction !== "idle") lastMotionAt = Date.now();
-    if (typeof t.lat === "number" && typeof t.lng === "number" && t.fix) updatePosition(t.lat, t.lng);
   }
 
   // ---- MQTT: subscribe only, no publish capability exists in this file ----
