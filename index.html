@@ -81,12 +81,12 @@
 <div class="app">
 
   <div class="header">
-    <div class="logo-box"><img src="logo2.png" alt="Logo 2"></div>
+    <div class="logo-box"><img src="logo1.png" alt="Logo 1"></div>
     <div class="title-block">
-      <h1 class="title">Car Push Tracker</h1>
+      <h1 class="title">🚗 Car Push Tracker</h1>
       <p class="subtitle">Live distance &amp; timer for this vehicle</p>
     </div>
-    <div class="logo-box"><img src="logo1.png" alt="Logo 1"></div>
+    <div class="logo-box"><img src="logo2.png" alt="Logo 2"></div>
   </div>
 
   <div class="status-row"><span class="pill" id="connStatus"><span class="dot"></span> Connecting…</span></div>
@@ -98,7 +98,7 @@
     </div>
     <div class="hero-card">
       <h2>Distance Pushed</h2>
-      <div class="hero-value"><span id="distanceValue">0.00</span> <span class="unit">m</span></div>
+      <div class="hero-value"><span id="distanceValue">0.00</span> <span class="unit" id="distanceUnit">m</span></div>
     </div>
   </div>
 
@@ -118,7 +118,7 @@
   // Publish permission at all) -- not the full-access credential the ESP32
   // and your private dashboard use.
   // ==========================================================================
-  const BROKER_URL     = "wss://35857808dd8b4537aabc6ee9c825c1c9.s1.eu.hivemq.cloud:8884/mqtt";
+  const BROKER_URL     = "35857808dd8b4537aabc6ee9c825c1c9.s1.eu.hivemq.cloud:8884/mqtt";
   const BROKER_USER     = "public-viewer";
   const BROKER_PASS     = "ovit2004";
   const TOPIC_TELEMETRY = "cartracker/mycar/telemetry";
@@ -126,42 +126,50 @@
 
   const connStatus    = el("connStatus");
   const distanceValue = el("distanceValue");
+  const distanceUnit  = el("distanceUnit");
   const timerValue    = el("timerValue");
   const timerCard     = el("timerCard");
 
   function setStatus(kind, text) { connStatus.className = "pill " + kind; connStatus.innerHTML = '<span class="dot"></span> ' + text; }
 
-  // ---- Timer: 1 hour countdown, runs while motion is reported ----
-  const TIMER_DURATION_MS = 3600000;
-  const MOTION_IDLE_TIMEOUT_MS = 3000;
-  let timerRunning = false, timerStartedAt = 0, timerElapsedMs = 0, lastMotionAt = 0;
-  function formatHMS(ms) {
-    const t = Math.floor(ms / 1000);
+  // ---- Timer: device-owned (see the .ino) -- this page only displays
+  // timer_remaining_s / timer_running from telemetry, ticking smoothly
+  // between the ~2s telemetry updates by interpolating locally. Never
+  // computed independently here, so it can't drift out of sync with the
+  // private dashboard -- both just show whatever the device reports. ----
+  function formatHMS(totalSeconds) {
+    const t = Math.max(0, Math.floor(totalSeconds));
     const h = String(Math.floor(t / 3600)).padStart(2, "0");
     const m = String(Math.floor((t % 3600) / 60)).padStart(2, "0");
     const s = String(t % 60).padStart(2, "0");
     return h + ":" + m + ":" + s;
   }
+  let lastKnownRemainingS = 3600, lastKnownAtMs = Date.now(), deviceTimerRunning = false;
   function tickTimer() {
-    let e = timerElapsedMs;
-    if (timerRunning) e += (Date.now() - timerStartedAt);
-    const remaining = Math.max(0, TIMER_DURATION_MS - e);
+    let remaining = lastKnownRemainingS;
+    if (deviceTimerRunning) remaining = Math.max(0, lastKnownRemainingS - (Date.now() - lastKnownAtMs) / 1000);
     timerValue.textContent = formatHMS(remaining);
     timerCard.classList.toggle("hour-hit", remaining <= 0);
-    if (remaining <= 0 && timerRunning) { timerElapsedMs = TIMER_DURATION_MS; timerRunning = false; }
   }
-  setInterval(() => {
-    const idle = (Date.now() - lastMotionAt) > MOTION_IDLE_TIMEOUT_MS;
-    const timeUp = timerElapsedMs >= TIMER_DURATION_MS;
-    if (!idle && lastMotionAt && !timerRunning && !timeUp) { timerRunning = true; timerStartedAt = Date.now(); }
-    else if (idle && timerRunning) { timerElapsedMs += (Date.now() - timerStartedAt); timerRunning = false; }
-    tickTimer();
-  }, 250);
+  setInterval(tickTimer, 250);
 
   // ---- Apply telemetry (display only -- this page never sends anything back) ----
   function applyTelemetry(t) {
-    if (typeof t.distance_m === "number") distanceValue.textContent = t.distance_m.toFixed(2);
-    if (t.direction && t.direction !== "idle") lastMotionAt = Date.now();
+    if (typeof t.distance_m === "number") {
+      if (t.distance_m < 100) {
+        distanceValue.textContent = t.distance_m.toFixed(2);
+        distanceUnit.textContent = "m";
+      } else {
+        distanceValue.textContent = (t.distance_m / 1000).toFixed(3);
+        distanceUnit.textContent = "km";
+      }
+    }
+    if (typeof t.timer_remaining_s === "number") {
+      lastKnownRemainingS = t.timer_remaining_s;
+      lastKnownAtMs = Date.now();
+      deviceTimerRunning = !!t.timer_running;
+      tickTimer();
+    }
   }
 
   // ---- MQTT: subscribe only, no publish capability exists in this file ----
