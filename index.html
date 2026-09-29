@@ -53,9 +53,8 @@
   .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 
   .hero-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 26px;
+    display: grid; grid-template-columns: 1fr; gap: 26px;
   }
-  @media (max-aspect-ratio: 4/5) { .hero-grid { grid-template-columns: 1fr; } }
 
   .hero-card {
     background: var(--panel); border: 1px solid var(--border);
@@ -81,24 +80,24 @@
 <div class="app">
 
   <div class="header">
-    <div class="logo-box"><img src="logo2.png" alt="Logo 2"></div>
+    <div class="logo-box"><img src="logo1.png" alt="Logo 1"></div>
     <div class="title-block">
       <h1 class="title">Car Push Tracker</h1>
       <p class="subtitle">Live distance &amp; timer for this vehicle</p>
     </div>
-    <div class="logo-box"><img src="logo1.png" alt="Logo 1"></div>
+    <div class="logo-box"><img src="logo2.png" alt="Logo 2"></div>
   </div>
 
   <div class="status-row"><span class="pill" id="connStatus"><span class="dot"></span> Connecting…</span></div>
 
   <div class="hero-grid">
-    <div class="hero-card" id="timerCard">
-      <h2>Session Timer</h2>
-      <div class="hero-value" id="timerValue">01:00:00</div>
-    </div>
     <div class="hero-card">
       <h2>Distance Pushed</h2>
       <div class="hero-value"><span id="distanceValue">0.00</span> <span class="unit" id="distanceUnit">m</span></div>
+    </div>
+    <div class="hero-card" id="timerCard">
+      <h2>Session Timer</h2>
+      <div class="hero-value" id="timerValue">01:00:00</div>
     </div>
   </div>
 
@@ -118,7 +117,7 @@
   // Publish permission at all) -- not the full-access credential the ESP32
   // and your private dashboard use.
   // ==========================================================================
-  const BROKER_URL     = "wss://35857808dd8b4537aabc6ee9c825c1c9.s1.eu.hivemq.cloud:8884/mqtt";
+  const BROKER_URL     = "wss:35857808dd8b4537aabc6ee9c825c1c9.s1.eu.hivemq.cloud:8884/mqtt";
   const BROKER_USER     = "public-viewer";
   const BROKER_PASS     = "ovit2004";
   const TOPIC_TELEMETRY = "cartracker/mycar/telemetry";
