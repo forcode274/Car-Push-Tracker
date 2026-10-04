@@ -39,6 +39,15 @@
     margin: 0; font-size: clamp(32px, 4.6vw, 56px);
     font-weight: 800; letter-spacing: -0.02em;
   }
+  .logo3 { display: block; height: 80px; width: auto; max-width: 240px; object-fit: contain; margin: 0 auto 10px; }
+  .record-banner {
+    margin: 0 0 6px; font-size: clamp(16px, 2vw, 26px); font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-2);
+  }
+  .timer-caption {
+    margin: 18px 0 0; font-size: clamp(14px, 1.5vw, 19px); font-weight: 600;
+    color: var(--text-dim);
+  }
   .subtitle { margin: 6px 0 0; color: var(--text-dim); font-size: clamp(14px, 1.4vw, 18px); }
 
   .status-row { display: flex; justify-content: center; margin-bottom: 26px; }
@@ -82,7 +91,8 @@
   <div class="header">
     <div class="logo-box"><img src="logo1.png" alt="Logo 1"></div>
     <div class="title-block">
-      <h1 class="title">Car Push Tracker</h1>
+      <img class="logo3" src="logo3.png" alt="Logo 3">
+      <div class="record-banner">World Record Attempt</div>
     </div>
     <div class="logo-box"><img src="logo2.png" alt="Logo 2"></div>
   </div>
@@ -93,10 +103,12 @@
     <div class="hero-card">
       <h2>Distance Pushed</h2>
       <div class="hero-value"><span id="distanceValue">0.00</span> <span class="unit" id="distanceUnit">m</span></div>
+      <p class="timer-caption">Greatest distance pushing a car in 1 hour by a female</p>
     </div>
     <div class="hero-card" id="timerCard">
       <h2>Session Timer</h2>
       <div class="hero-value" id="timerValue">01:00:00</div>
+      <p class="timer-caption">Greatest distance pushing a car in 1 hour by a female</p>
     </div>
   </div>
 </div>
