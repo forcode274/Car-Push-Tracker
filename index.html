@@ -3,114 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Car Push Tracker</title>
+<title>World Record</title>
 <style>
-  :root {
-    --bg: #ffffff;
-    --panel: #ffffff;
-    --panel-2: #f4f6fa;
-    --border: #e2e6ee;
-    --text: #1a2233;
-    --text-dim: #6b7789;
-    --accent: #2563eb;
-    --accent-2: #f59e0b;
-    --danger: #dc2626;
-    --good: #16a34a;
-    --radius: 18px;
-    --shadow: 0 2px 14px rgba(20,32,51,0.07);
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; height: 100%; }
-  body {
-    background: var(--bg); color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    min-height: 100vh; overflow-x: hidden;
-  }
-  .app { width: 100%; max-width: 1400px; margin: 0 auto; padding: 26px 28px 34px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+/* ==========================================================================
+   EDIT ME  —  everything you're likely to change is in this one block.
 
-  .header {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 24px; margin-bottom: 30px;
-  }
-  .logo-box { flex: 0 0 auto; height: 120px; display: flex; align-items: center; }
-  .logo-box img { height: 100%; width: auto; max-width: 300px; object-fit: contain; }
-  .title-block { text-align: center; flex: 1 1 auto; }
-  h1.title {
-    margin: 0; font-size: clamp(32px, 4.6vw, 56px);
-    font-weight: 800; letter-spacing: -0.02em;
-  }
-  .logo3 { display: block; height: 80px; width: auto; max-width: 240px; object-fit: contain; margin: 0 auto 10px; }
-  .record-banner {
-    margin: 0 0 6px; font-size: clamp(16px, 2vw, 26px); font-weight: 800;
-    text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-2);
-  }
-  .record-title {
-    text-align: center; margin: 26px 0 0; font-size: clamp(16px, 2vw, 24px);
-    font-weight: 700; color: var(--text);
-  }
-  .subtitle { margin: 6px 0 0; color: var(--text-dim); font-size: clamp(14px, 1.4vw, 18px); }
+   Sizes are in "u" units. 1u = 1% of the screen width on a 16:9 screen.
+   The page is built as a 16:9 stage that scales to fit ANY screen (extra
+   space is just white), so these numbers stay proportional on every display.
 
-  .status-row { display: flex; justify-content: center; margin-bottom: 26px; }
-  .pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 6px 16px; border-radius: 999px; font-size: 13px; font-weight: 600;
-    background: var(--panel-2); border: 1px solid var(--border); color: var(--text-dim);
-  }
-  .pill.connected { color: var(--good); }
-  .pill.error { color: var(--danger); }
-  .pill.info { color: var(--accent); }
-  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+   LOGO ROW RULE: (logo sizes added up) + (4 x --logo-gap) must stay under
+   about 94, or the row will run off the edges.
+   Default: 11 + 11 + 34 + 11 + 11 + (4 x 4) = 94
+   ========================================================================== */
+:root {
+  /* ---- Logo sizes ---- */
+  --logo-circle: 11;     /* logos 1, 2, 4 : circle diameter        */
+  --logo-rect-w: 34;     /* logo 3        : rectangle width        */
+  --logo-rect-h: 9;      /* logo 3        : rectangle height       */
+  --logo-square: 11;     /* logo 5        : square side            */
+  --logo-gap:    4;      /* space between each pair of logos        */
+  --logo-fit:    contain;/* contain = whole logo visible, cover = fill the shape (may crop) */
 
-  .hero-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 26px;
-  }
+  /* ---- Text sizes ---- */
+  --title-size:     5.6; /* WORLD RECORD                            */
+  --subtitle-size:  2.3; /* GREATEST DISTANCE PUSHING A CAR ...     */
+  --box-label-size: 3.4; /* DISTANCE / DURATION                     */
+  --box-value-size: 8;   /* the big numbers                         */
 
-  .hero-card {
-    background: var(--panel); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 40px 30px; box-shadow: var(--shadow);
-    text-align: center;
-  }
-  .hero-card h2 {
-    margin: 0 0 16px; font-size: 16px; text-transform: uppercase;
-    letter-spacing: 0.08em; color: var(--text-dim); font-weight: 700;
-  }
-  .hero-value {
-    font-size: clamp(52px, 8vw, 96px); font-weight: 800;
-    font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
-    line-height: 1.1;
-  }
-  .hero-value .unit { font-size: 26px; color: var(--text-dim); font-weight: 600; }
-  #timerCard.hour-hit { border-color: var(--accent-2); box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
+  /* ---- Layout ---- */
+  --side-margin: 3;      /* left/right margin of the whole page     */
+  --top-margin:  2.5;    /* space above the logo row                */
+  --box-gap:     3;      /* space between DISTANCE and DURATION     */
+  --box-border:  0.7;    /* thickness of the black box outline      */
+  --box-radius:  0.6;    /* roundness of the box corners (0 = sharp)*/
 
-  footer { text-align: center; color: var(--text-dim); font-size: 12px; margin-top: 20px; }
+  /* ---- Colours ---- */
+  --red: #c4001d;
+  --ink: #111111;
+  --bg:  #ffffff;
+
+  /* ---- Tiny connection dot (bottom-right). Set to none to hide it ---- */
+  --status-dot-display: block;
+}
+/* ======================= end of EDIT ME block ============================= */
+
+:root { --u: min(1vw, 1.7778vh); }   /* don't edit: 1u scaling unit */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bg); overflow: hidden; }
+body {
+  display: flex; align-items: center; justify-content: center;
+  font-family: "Arial Black", "Helvetica Neue", Arial, "Liberation Sans", sans-serif;
+  color: var(--ink);
+}
+
+.stage {
+  position: relative;
+  width:  calc(var(--u) * 100);
+  height: calc(var(--u) * 56.25);
+  display: flex; flex-direction: column;
+  padding: calc(var(--u) * var(--top-margin)) calc(var(--u) * var(--side-margin)) calc(var(--u) * 3);
+}
+
+/* ---------- Logo row ---------- */
+.logos {
+  display: flex; align-items: center; justify-content: center;
+  gap: calc(var(--u) * var(--logo-gap));
+  flex: 0 0 auto;
+}
+.logo {
+  position: relative; flex: 0 0 auto; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.logo img { width: 100%; height: 100%; object-fit: var(--logo-fit); display: block; }
+.logo.circle { width: calc(var(--u) * var(--logo-circle)); height: calc(var(--u) * var(--logo-circle)); border-radius: 50%; }
+.logo.rect   { width: calc(var(--u) * var(--logo-rect-w));  height: calc(var(--u) * var(--logo-rect-h)); }
+.logo.square { width: calc(var(--u) * var(--logo-square));  height: calc(var(--u) * var(--logo-square)); }
+/* shown only while a logo file is missing, so you can see the layout */
+.logo.missing { border: calc(var(--u) * 0.25) solid var(--ink); }
+.logo.missing::after { content: attr(data-label); font-weight: 700; font-size: calc(var(--u) * 1.6); }
+
+/* ---------- Headings ---------- */
+.title {
+  text-align: center; color: var(--red); font-weight: 900;
+  font-size: calc(var(--u) * var(--title-size)); line-height: 1.05;
+  margin-top: calc(var(--u) * 1.8);
+}
+.subtitle {
+  text-align: center; color: var(--red); font-weight: 800;
+  font-size: calc(var(--u) * var(--subtitle-size)); line-height: 1.15;
+  margin-top: calc(var(--u) * 0.8);
+}
+
+/* ---------- DISTANCE / DURATION boxes ---------- */
+.boxes {
+  flex: 1 1 auto; min-height: 0;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: calc(var(--u) * var(--box-gap));
+  margin-top: calc(var(--u) * 2.2);
+}
+.box {
+  display: flex; flex-direction: column; align-items: center;
+  border: calc(var(--u) * var(--box-border)) solid var(--ink);
+  border-radius: calc(var(--u) * var(--box-radius));
+  padding-top: calc(var(--u) * 1.2);
+}
+.box h2 {
+  color: var(--red); font-weight: 900; letter-spacing: 0.02em;
+  font-size: calc(var(--u) * var(--box-label-size)); line-height: 1.1;
+}
+.box .value {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  font-weight: 900; white-space: nowrap; font-variant-numeric: tabular-nums;
+  font-size: calc(var(--u) * var(--box-value-size));
+}
+.box .unit { font-size: 0.42em; margin-left: 0.25em; }
+
+/* ---------- tiny connection dot ---------- */
+.status {
+  display: var(--status-dot-display);
+  position: absolute; right: calc(var(--u) * 1); bottom: calc(var(--u) * 1);
+  width: calc(var(--u) * 0.9); height: calc(var(--u) * 0.9);
+  border-radius: 50%; background: #c9c9c9;
+}
+.status.live  { background: #16a34a; }
+.status.error { background: #dc2626; }
 </style>
 </head>
 <body>
-<div class="app">
+<div class="stage">
 
-  <div class="header">
-    <div class="logo-box"><img src="logo1.png" alt="Logo 1"></div>
-    <div class="title-block">
-      <img class="logo3" src="logo3.png" alt="Logo 3">
-      <div class="record-banner">World Record Attempt</div>
-    </div>
-    <div class="logo-box"><img src="logo2.png" alt="Logo 2"></div>
+  <!-- Logo files sit next to this index.html: logo1.png ... logo5.png -->
+  <div class="logos">
+    <div class="logo circle" data-label="LOGO 1"><img src="logo1.png" alt="Logo 1"></div>
+    <div class="logo circle" data-label="LOGO 2"><img src="logo2.png" alt="Logo 2"></div>
+    <div class="logo rect"   data-label="LOGO 3"><img src="logo3.png" alt="Logo 3"></div>
+    <div class="logo circle" data-label="LOGO 4"><img src="logo4.png" alt="Logo 4"></div>
+    <div class="logo square" data-label="LOGO 5"><img src="logo5.png" alt="Logo 5"></div>
   </div>
 
-  <div class="status-row"><span class="pill" id="connStatus"><span class="dot"></span> Connecting…</span></div>
+  <div class="title">WORLD RECORD</div>
+  <div class="subtitle">GREATEST DISTANCE PUSHING A CAR IN 60 MINUTES - FEMALE</div>
 
-  <div class="hero-grid">
-    <div class="hero-card">
-      <h2>Distance Pushed</h2>
-      <div class="hero-value"><span id="distanceValue">0.00</span> <span class="unit" id="distanceUnit">m</span></div>
+  <div class="boxes">
+    <div class="box">
+      <h2>DISTANCE</h2>
+      <div class="value"><span id="distanceValue">0.00</span><span class="unit" id="distanceUnit">m</span></div>
     </div>
-    <div class="hero-card" id="timerCard">
-      <h2>Session Timer</h2>
-      <div class="hero-value" id="timerValue">01:00:00</div>
+    <div class="box">
+      <h2>DURATION</h2>
+      <div class="value" id="timerValue">00:00:00</div>
     </div>
   </div>
 
-  <p class="record-title">Greatest distance pushing A Car in 1 hour by female</p>
+  <div class="status" id="statusDot" title="Connection status"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.10.1/mqtt.min.js"></script>
@@ -120,84 +167,78 @@
   const el = (id) => document.getElementById(id);
 
   // ==========================================================================
-  // PUBLIC, READ-ONLY connection. This page never publishes anything -- it
-  // only subscribes to the telemetry topic. Use a SEPARATE, restricted
-  // HiveMQ Cloud credential here (Subscribe-only on this one topic, no
-  // Publish permission at all) -- not the full-access credential the ESP32
-  // and your private dashboard use.
+  // CONNECTION  -- read-only. This page never publishes anything.
+  // Use the restricted HiveMQ credential (Subscribe-only on the telemetry
+  // topic), NOT the full-access one the ESP32 / private dashboard use.
   // ==========================================================================
-  const BROKER_URL     = "wss://35857808dd8b4537aabc6ee9c825c1c9.s1.eu.hivemq.cloud:8884/mqtt";
+  const BROKER_URL      = "wss://35857808dd8b4537aabc6ee9c825c1c9.s1.eu.hivemq.cloud:8884/mqtt";
   const BROKER_USER     = "public-viewer";
   const BROKER_PASS     = "ovit2004";
   const TOPIC_TELEMETRY = "cartracker/mycar/telemetry";
   // ==========================================================================
 
-  const connStatus    = el("connStatus");
-  const distanceValue = el("distanceValue");
-  const distanceUnit  = el("distanceUnit");
-  const timerValue    = el("timerValue");
-  const timerCard     = el("timerCard");
+  // ---- Logos: if a file is missing, show a "LOGO n" outline instead ----
+  document.querySelectorAll(".logo").forEach((box) => {
+    const img = box.querySelector("img");
+    const miss = () => { box.classList.add("missing"); img.remove(); };
+    if (img.complete && img.naturalWidth === 0) miss();
+    img.addEventListener("error", miss);
+  });
 
-  function setStatus(kind, text) { connStatus.className = "pill " + kind; connStatus.innerHTML = '<span class="dot"></span> ' + text; }
+  // ---- Distance: metres until 100 m, then km ----
+  const distanceValue = el("distanceValue"), distanceUnit = el("distanceUnit");
+  function showDistance(d) {
+    if (d < 100) { distanceValue.textContent = d.toFixed(2);          distanceUnit.textContent = "m";  }
+    else         { distanceValue.textContent = (d / 1000).toFixed(3); distanceUnit.textContent = "km"; }
+  }
 
-  // ---- Timer: device-owned (see the .ino) -- this page only displays
-  // timer_remaining_s / timer_running from telemetry, ticking smoothly
-  // between the ~2s telemetry updates by interpolating locally. Never
-  // computed independently here, so it can't drift out of sync with the
-  // private dashboard -- both just show whatever the device reports. ----
-  function formatHMS(totalSeconds) {
-    const t = Math.max(0, Math.floor(totalSeconds));
+  // ---- Duration: counts UP 00:00:00 -> 01:00:00 and stops there.
+  // The device owns the clock (it reports seconds remaining); this page just
+  // shows elapsed = 3600 - remaining, ticking smoothly between updates. ----
+  const DURATION_S = 3600;
+  const timerValue = el("timerValue");
+  let lastRemaining = DURATION_S, lastAt = Date.now(), deviceRunning = false;
+  function fmt(totalSeconds) {
+    const t = Math.floor(totalSeconds);
     const h = String(Math.floor(t / 3600)).padStart(2, "0");
     const m = String(Math.floor((t % 3600) / 60)).padStart(2, "0");
     const s = String(t % 60).padStart(2, "0");
     return h + ":" + m + ":" + s;
   }
-  let lastKnownRemainingS = 3600, lastKnownAtMs = Date.now(), deviceTimerRunning = false;
-  function tickTimer() {
-    let remaining = lastKnownRemainingS;
-    if (deviceTimerRunning) remaining = Math.max(0, lastKnownRemainingS - (Date.now() - lastKnownAtMs) / 1000);
-    timerValue.textContent = formatHMS(remaining);
-    timerCard.classList.toggle("hour-hit", remaining <= 0);
+  function tick() {
+    let elapsed = DURATION_S - lastRemaining;
+    if (deviceRunning) elapsed += (Date.now() - lastAt) / 1000;
+    elapsed = Math.min(DURATION_S, Math.max(0, elapsed));
+    timerValue.textContent = fmt(elapsed);
   }
-  setInterval(tickTimer, 250);
+  setInterval(tick, 250);
 
-  // ---- Apply telemetry (display only -- this page never sends anything back) ----
   function applyTelemetry(t) {
-    if (typeof t.distance_m === "number") {
-      if (t.distance_m < 100) {
-        distanceValue.textContent = t.distance_m.toFixed(2);
-        distanceUnit.textContent = "m";
-      } else {
-        distanceValue.textContent = (t.distance_m / 1000).toFixed(3);
-        distanceUnit.textContent = "km";
-      }
-    }
+    if (typeof t.distance_m === "number") showDistance(t.distance_m);
     if (typeof t.timer_remaining_s === "number") {
-      lastKnownRemainingS = t.timer_remaining_s;
-      lastKnownAtMs = Date.now();
-      deviceTimerRunning = !!t.timer_running;
-      tickTimer();
+      lastRemaining = t.timer_remaining_s;
+      lastAt = Date.now();
+      deviceRunning = !!t.timer_running;
+      tick();
     }
   }
 
-  // ---- MQTT: subscribe only, no publish capability exists in this file ----
+  // ---- MQTT: subscribe only ----
+  const dot = el("statusDot");
+  const setDot = (cls) => { dot.className = "status " + (cls || ""); };
   function connect() {
-    if (typeof mqtt === "undefined") { setStatus("error", "MQTT library failed to load"); return; }
-    setStatus("info", "Connecting…");
+    if (typeof mqtt === "undefined") { setDot("error"); return; }
     const client = mqtt.connect(BROKER_URL, {
       username: BROKER_USER, password: BROKER_PASS,
       clean: true, reconnectPeriod: 4000, connectTimeout: 30000, keepalive: 30,
       protocolVersion: 5, rejectUnauthorized: true
     });
-    client.on("connect", () => {
-      setStatus("connected", "Live");
-      client.subscribe(TOPIC_TELEMETRY, { qos: 0 });
-    });
-    client.on("reconnect", () => setStatus("info", "Reconnecting…"));
-    client.on("close",     () => setStatus("error", "Disconnected"));
-    client.on("offline",   () => setStatus("error", "Offline"));
-    client.on("error", (e) => setStatus("error", "Connection error"));
-    client.on("message", (topic, payload) => { try { applyTelemetry(JSON.parse(payload.toString())); } catch (e) {} });
+    client.on("connect",   () => { setDot("live"); client.subscribe(TOPIC_TELEMETRY, { qos: 0 }); });
+    client.on("reconnect", () => setDot(""));
+    client.on("close",     () => setDot("error"));
+    client.on("offline",   () => setDot("error"));
+    client.on("error",     () => setDot("error"));
+    client.on("message",   (topic, payload) => { try { applyTelemetry(JSON.parse(payload.toString())); } catch (e) {} });
   }
   connect();
 })();
