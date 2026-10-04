@@ -21,7 +21,7 @@
   --logo-circle: 11;     /* logos 1, 2, 4 : circle diameter        */
   --logo-rect-w: 34;     /* logo 3        : rectangle width        */
   --logo-rect-h: 9;      /* logo 3        : rectangle height       */
-  --logo-square: 12;     /* logo 5        : square side            */
+  --logo-square: 11;     /* logo 5        : square side            */
   --logo-gap:    4;      /* space between each pair of logos        */
   --logo-fit:    contain;/* contain = whole logo visible, cover = fill the shape (may crop) */
 
@@ -35,8 +35,14 @@
   --side-margin: 3;      /* left/right margin of the whole page     */
   --top-margin:  2.5;    /* space above the logo row                */
   --box-gap:     3;      /* space between DISTANCE and DURATION     */
-  --box-border:  0.2;    /* thickness of the black box outline      */
-  --box-radius:  1;    /* roundness of the box corners (0 = sharp)*/
+  --box-border:  0.18;   /* thickness of the box outline            */
+  --box-radius:  1;      /* roundness of the box corners (0 = sharp)*/
+  --box-border-color: #999999;      /* outline colour (try --ink for solid black) */
+  --box-shadow-color: rgba(0,0,0,0.18);
+  --box-shadow-x:     0;   /* shadow offset, horizontal */
+  --box-shadow-y:      0.6; /* shadow offset, vertical   */
+  --box-shadow-blur:   2.2; /* shadow softness           */
+  --box-shadow-spread: 0;   /* shadow size vs box size   */
 
   /* ---- Colours ---- */
   --red: #c4001d;
@@ -105,9 +111,13 @@ body {
 }
 .box {
   display: flex; flex-direction: column; align-items: center;
-  border: calc(var(--u) * var(--box-border)) solid var(--ink);
+  border: calc(var(--u) * var(--box-border)) solid var(--box-border-color);
   border-radius: calc(var(--u) * var(--box-radius));
   padding-top: calc(var(--u) * 1.2);
+  box-shadow: calc(var(--u) * var(--box-shadow-x)) calc(var(--u) * var(--box-shadow-y))
+              calc(var(--u) * var(--box-shadow-blur)) calc(var(--u) * var(--box-shadow-spread))
+              var(--box-shadow-color);
+  background: var(--bg);
 }
 .box h2 {
   color: var(--red); font-weight: 900; letter-spacing: 0.02em;
