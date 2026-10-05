@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0059)file:///C:/Users/Dakshan%20Vijay/Downloads/index%20(3).html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>World Record</title>
 <style>
@@ -12,17 +12,25 @@
    The page is built as a 16:9 stage that scales to fit ANY screen (extra
    space is just white), so these numbers stay proportional on every display.
 
-   LOGO ROW RULE: (logo sizes added up) + (4 x --logo-gap) must stay under
-   about 94, or the row will run off the edges.
-   Default: 11 + 11 + 34 + 11 + 11 + (4 x 4) = 94
+   LOGO ROW RULE: the 5 logo sizes added together, plus the 4 gaps added
+   together, must stay under about 94, or the row will run off the edges.
+   Default: 11 + 11 + 34 + 11 + 11 + (4+4+4+4) = 94
    ========================================================================== */
 :root {
-  /* ---- Logo sizes ---- */
-  --logo-circle: 11;     /* logos 1, 2, 4 : circle diameter        */
-  --logo-rect-w: 50;     /* logo 3        : rectangle width        */
-  --logo-rect-h: 9;      /* logo 3        : rectangle height       */
-  --logo-square: 11;     /* logo 5        : square side            */
-  --logo-gap:    3;      /* space between each pair of logos        */
+  /* ---- Logo sizes (each one independent) ---- */
+  --logo1-size:  11;      /* logo 1 (circle) diameter                */
+  --logo2-size:  10;      /* logo 2 (circle) diameter                */
+  --logo3-w:     50;      /* logo 3 (rectangle) width                */
+  --logo3-h:     9;       /* logo 3 (rectangle) height               */
+  --logo4-size:  10;      /* logo 4 (circle) diameter                */
+  --logo5-size:  10;      /* logo 5 (square) side                    */
+
+  /* ---- Gaps (each one independent, named by the pair it sits between) ---- */
+  --gap-1-2: 3.8;           /* space between logo 1 and logo 2         */
+  --gap-2-3: 2.5;           /* space between logo 2 and logo 3         */
+  --gap-3-4: 2.5;           /* space between logo 3 and logo 4         */
+  --gap-4-5: 3.8;           /* space between logo 4 and logo 5         */
+
   --logo-fit:    contain;/* contain = whole logo visible, cover = fill the shape (may crop) */
 
   /* ---- Text sizes ---- */
@@ -35,13 +43,13 @@
   --side-margin: 3;      /* left/right margin of the whole page     */
   --top-margin:  2.5;    /* space above the logo row                */
   --box-gap:     3;      /* space between DISTANCE and DURATION     */
-  --box-border:  0.18;   /* thickness of the box outline            */
+  --box-border:  0.1;   /* thickness of the box outline            */
   --box-radius:  1;      /* roundness of the box corners (0 = sharp)*/
-  --box-border-color: #999999;      /* outline colour (try --ink for solid black) */
-  --box-shadow-color: rgba(0,0,0,0.18);
+  --box-border-color: #e2e6ee;      /* outline colour (try --ink for solid black) */
+  --box-shadow-color: rgba(20,32,51,0.07);
   --box-shadow-x:     0;   /* shadow offset, horizontal */
-  --box-shadow-y:      0.6; /* shadow offset, vertical   */
-  --box-shadow-blur:   2.2; /* shadow softness           */
+  --box-shadow-y:      0.8; /* shadow offset, vertical   */
+  --box-shadow-blur:   2.8; /* shadow softness           */
   --box-shadow-spread: 0;   /* shadow size vs box size   */
 
   /* ---- Colours ---- */
@@ -76,17 +84,23 @@ body {
 /* ---------- Logo row ---------- */
 .logos {
   display: flex; align-items: center; justify-content: center;
-  gap: calc(var(--u) * var(--logo-gap));
   flex: 0 0 auto;
+  /* no shared "gap" here -- each logo sets its own right-margin below,
+     via --gap-1-2 etc., so every space can differ */
 }
 .logo {
   position: relative; flex: 0 0 auto; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
 }
 .logo img { width: 100%; height: 100%; object-fit: var(--logo-fit); display: block; }
-.logo.circle { width: calc(var(--u) * var(--logo-circle)); height: calc(var(--u) * var(--logo-circle)); border-radius: 50%; }
-.logo.rect   { width: calc(var(--u) * var(--logo-rect-w));  height: calc(var(--u) * var(--logo-rect-h)); }
-.logo.square { width: calc(var(--u) * var(--logo-square));  height: calc(var(--u) * var(--logo-square)); }
+.logo.circle { border-radius: 50%; }
+
+/* Each logo's own size + the gap after it. Edit any of these independently. */
+#logo1 { width: calc(var(--u) * var(--logo1-size)); height: calc(var(--u) * var(--logo1-size)); margin-right: calc(var(--u) * var(--gap-1-2)); }
+#logo2 { width: calc(var(--u) * var(--logo2-size)); height: calc(var(--u) * var(--logo2-size)); margin-right: calc(var(--u) * var(--gap-2-3)); }
+#logo3 { width: calc(var(--u) * var(--logo3-w));    height: calc(var(--u) * var(--logo3-h));    margin-right: calc(var(--u) * var(--gap-3-4)); }
+#logo4 { width: calc(var(--u) * var(--logo4-size)); height: calc(var(--u) * var(--logo4-size)); margin-right: calc(var(--u) * var(--gap-4-5)); }
+#logo5 { width: calc(var(--u) * var(--logo5-size)); height: calc(var(--u) * var(--logo5-size)); }
 /* shown only while a logo file is missing, so you can see the layout */
 .logo.missing { border: calc(var(--u) * 0.25) solid var(--ink); }
 .logo.missing::after { content: attr(data-label); font-weight: 700; font-size: calc(var(--u) * 1.6); }
@@ -147,11 +161,11 @@ body {
 
   <!-- Logo files sit next to this index.html: logo1.png ... logo5.png -->
   <div class="logos">
-    <div class="logo circle" data-label="LOGO 1"><img src="logo1.png" alt="Logo 1"></div>
-    <div class="logo circle" data-label="LOGO 2"><img src="logo2.png" alt="Logo 2"></div>
-    <div class="logo rect"   data-label="LOGO 3"><img src="logo3.png" alt="Logo 3"></div>
-    <div class="logo circle" data-label="LOGO 4"><img src="logo4.png" alt="Logo 4"></div>
-    <div class="logo square" data-label="LOGO 5"><img src="logo5.png" alt="Logo 5"></div>
+    <div class="logo circle" id="logo1" data-label="LOGO 1"><img src="./index(4)_files/logo1.png" alt="Logo 1"></div>
+    <div class="logo circle" id="logo2" data-label="LOGO 2"><img src="./index(4)_files/logo2.png" alt="Logo 2"></div>
+    <div class="logo rect" id="logo3" data-label="LOGO 3"><img src="./index(4)_files/logo3.png" alt="Logo 3"></div>
+    <div class="logo circle" id="logo4" data-label="LOGO 4"><img src="./index(4)_files/logo4.png" alt="Logo 4"></div>
+    <div class="logo square" id="logo5" data-label="LOGO 5"><img src="./index(4)_files/logo5.png" alt="Logo 5"></div>
   </div>
 
   <div class="title">WORLD RECORD</div>
@@ -168,10 +182,10 @@ body {
     </div>
   </div>
 
-  <div class="status" id="statusDot" title="Connection status"></div>
+  <div class="status live" id="statusDot" title="Connection status"></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.10.1/mqtt.min.js"></script>
+<script src="./index(4)_files/mqtt.min.js"></script>
 <script>
 (function () {
   "use strict";
@@ -254,5 +268,5 @@ body {
   connect();
 })();
 </script>
-</body>
-</html>
+
+</body></html>
