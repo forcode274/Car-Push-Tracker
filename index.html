@@ -19,7 +19,7 @@
 :root {
   /* ---- Logo sizes ---- */
   --logo-circle: 11;     /* logos 1, 2, 4 : circle diameter        */
-  --logo-rect-w: 34;     /* logo 3        : rectangle width        */
+  --logo-rect-w: 50;     /* logo 3        : rectangle width        */
   --logo-rect-h: 9;      /* logo 3        : rectangle height       */
   --logo-square: 11;     /* logo 5        : square side            */
   --logo-gap:    4;      /* space between each pair of logos        */
@@ -45,9 +45,10 @@
   --box-shadow-spread: 0;   /* shadow size vs box size   */
 
   /* ---- Colours ---- */
-  --red: #c4001d;
-  --ink: #111111;
-  --bg:  #ffffff;
+  --red:  #c4001d;
+  --blue: #105c8e;
+  --ink:  #111111;
+  --bg:   #ffffff;
 
   /* ---- Tiny connection dot (bottom-right). Set to none to hide it ---- */
   --status-dot-display: block;
@@ -97,7 +98,7 @@ body {
   margin-top: calc(var(--u) * 1.8);
 }
 .subtitle {
-  text-align: center; color: var(--red); font-weight: 800;
+  text-align: center; color: var(--blue); font-weight: 800;
   font-size: calc(var(--u) * var(--subtitle-size)); line-height: 1.15;
   margin-top: calc(var(--u) * 0.8);
 }
