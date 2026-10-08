@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>World Record</title>
 <style>
@@ -27,10 +26,10 @@
   --logo5-size:  10;      /* logo 5 (square) side                    */
 
   /* ---- Gaps (each one independent, named by the pair it sits between) ---- */
-  --gap-1-2: 3.8;           /* space between logo 1 and logo 2         */
+  --gap-1-2: 3.2;           /* space between logo 1 and logo 2         */
   --gap-2-3: 2.5;           /* space between logo 2 and logo 3         */
   --gap-3-4: 2.5;           /* space between logo 3 and logo 4         */
-  --gap-4-5: 3.8;           /* space between logo 4 and logo 5         */
+  --gap-4-5: 3.2;           /* space between logo 4 and logo 5         */
 
   --logo-fit:    contain;/* contain = whole logo visible, cover = fill the shape (may crop) */
 
@@ -44,20 +43,19 @@
   --side-margin: 3;      /* left/right margin of the whole page     */
   --top-margin:  2.5;    /* space above the logo row                */
   --box-gap:     3;      /* space between DISTANCE and DURATION     */
-  --box-border:  0.1;   /* thickness of the box outline            */
+  --box-border:  0.18;   /* thickness of the box outline            */
   --box-radius:  1;      /* roundness of the box corners (0 = sharp)*/
-  --box-border-color: #e2e6ee;      /* outline colour (try --ink for solid black) */
-  --box-shadow-color: rgba(20,32,51,0.07);
+  --box-border-color: #999999;      /* outline colour (try --ink for solid black) */
+  --box-shadow-color: rgba(0,0,0,0.18);
   --box-shadow-x:     0;   /* shadow offset, horizontal */
-  --box-shadow-y:      0.8; /* shadow offset, vertical   */
-  --box-shadow-blur:   2.8; /* shadow softness           */
+  --box-shadow-y:      0.6; /* shadow offset, vertical   */
+  --box-shadow-blur:   2.2; /* shadow softness           */
   --box-shadow-spread: 0;   /* shadow size vs box size   */
 
   /* ---- Colours ---- */
-  --red:  #c4001d;
-  --blue: #105c8e;
-  --ink:  #111111;
-  --bg:   #ffffff;
+  --red: #c4001d;
+  --ink: #111111;
+  --bg:  #ffffff;
 
   /* ---- Tiny connection dot (bottom-right). Set to none to hide it ---- */
   --status-dot-display: block;
@@ -113,7 +111,7 @@ body {
   margin-top: calc(var(--u) * 1.8);
 }
 .subtitle {
-  text-align: center; color: var(--blue); font-weight: 800;
+  text-align: center; color: var(--red); font-weight: 800;
   font-size: calc(var(--u) * var(--subtitle-size)); line-height: 1.15;
   margin-top: calc(var(--u) * 0.8);
 }
@@ -164,7 +162,7 @@ body {
   <div class="logos">
     <div class="logo circle" id="logo1" data-label="LOGO 1"><img src="logo1.png" alt="Logo 1"></div>
     <div class="logo circle" id="logo2" data-label="LOGO 2"><img src="logo2.png" alt="Logo 2"></div>
-    <div class="logo rect" id="logo3" data-label="LOGO 3"><img src="logo3.png" alt="Logo 3"></div>
+    <div class="logo rect"   id="logo3" data-label="LOGO 3"><img src="logo3.png" alt="Logo 3"></div>
     <div class="logo circle" id="logo4" data-label="LOGO 4"><img src="logo4.png" alt="Logo 4"></div>
     <div class="logo square" id="logo5" data-label="LOGO 5"><img src="logo5.png" alt="Logo 5"></div>
   </div>
@@ -183,7 +181,7 @@ body {
     </div>
   </div>
 
-  <div class="status live" id="statusDot" title="Connection status"></div>
+  <div class="status" id="statusDot" title="Connection status"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.10.1/mqtt.min.js"></script>
@@ -214,8 +212,20 @@ body {
   // ---- Distance: metres until 100 m, then km ----
   const distanceValue = el("distanceValue"), distanceUnit = el("distanceUnit");
   function showDistance(d) {
-    if (d < 100) { distanceValue.textContent = d.toFixed(2);          distanceUnit.textContent = "m";  }
-    else         { distanceValue.textContent = (d / 1000).toFixed(3); distanceUnit.textContent = "km"; }
+    const v = d < 100 ? d.toFixed(2) : (d / 1000).toFixed(3);
+    const u = d < 100 ? "m" : "km";
+    if (distanceValue.textContent !== v) distanceValue.textContent = v;
+    if (distanceUnit.textContent  !== u) distanceUnit.textContent  = u;
+  }
+
+  // ---- Smooth distance: each new reading is glided into over the time since
+  // the previous one (no jumps, never overshoots). A reset snaps instantly. ----
+  let dFrom = 0, dTo = 0, dShown = 0, dStart = 0, dDur = 1, dLastUpdate = 0, dSeen = false;
+  function onDistance(d) {
+    const now = performance.now();
+    if (!dSeen || d < dShown - 0.005) { dFrom = dTo = dShown = d; dDur = 1; }   // first value / reset
+    else { dFrom = dShown; dTo = d; dDur = Math.min(1000, Math.max(200, now - dLastUpdate)); }
+    dStart = now; dLastUpdate = now; dSeen = true;
   }
 
   // ---- Duration: counts UP 00:00:00 -> 01:00:00 and stops there.
@@ -237,10 +247,17 @@ body {
     elapsed = Math.min(DURATION_S, Math.max(0, elapsed));
     timerValue.textContent = fmt(elapsed);
   }
-  setInterval(tick, 250);
+  function frame() {
+    const p = Math.min(1, (performance.now() - dStart) / dDur);
+    dShown = dFrom + (dTo - dFrom) * p;
+    showDistance(dShown);
+    tick();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 
   function applyTelemetry(t) {
-    if (typeof t.distance_m === "number") showDistance(t.distance_m);
+    if (typeof t.distance_m === "number") onDistance(t.distance_m);
     if (typeof t.timer_remaining_s === "number") {
       lastRemaining = t.timer_remaining_s;
       lastAt = Date.now();
@@ -269,5 +286,5 @@ body {
   connect();
 })();
 </script>
-
-</body></html>
+</body>
+</html>
